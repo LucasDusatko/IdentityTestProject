@@ -6,7 +6,7 @@ using System.Web;
 
 namespace IdentityTestProject.Models
 {
-    public class UserViewModel
+    public class CreateModel
     {
         [Required]
         public string Name { get; set; }
