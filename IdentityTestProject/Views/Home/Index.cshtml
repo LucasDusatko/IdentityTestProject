@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+<div class="panel panel-primary">
+    <div class="panel-heading">User Details</div>
+    <div class="panel-body">
+        <table class="table table-striped">
+            @foreach (string key in Model.Keys)
+            {
+                <tr>
+                    <th>@key</th>
+                    <td>@Model[key]</td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
