@@ -19,6 +19,24 @@ namespace IdentityTestProject.Infrastructure
             AppIdentityDbContext db = context.Get<AppIdentityDbContext>();
             AppUserManager manager = new AppUserManager(new UserStore<AppUser>(db));
 
+            manager.PasswordValidator = new CustomPasswordValidator
+            {
+                RequiredLength = 6,
+                RequireNonLetterOrDigit = false,
+                RequireDigit = false,
+                RequireLowercase = false,
+                RequireUppercase = false
+               
+            };
+
+            manager.UserValidator = new CustomUserValidator(manager)
+            {
+                AllowOnlyAlphanumericUserNames = true,
+                RequireUniqueEmail = true
+            };
+
+            
+
             return manager;
         }
     }
