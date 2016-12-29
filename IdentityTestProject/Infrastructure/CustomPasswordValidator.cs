@@ -15,6 +15,7 @@ namespace IdentityTestProject.Infrastructure
             if (pass.Contains("12345"))
             {
                 var errors = result.Errors.ToList();
+
                 errors.Add("Passwords cannot contain numeric sequences");
                 result = new IdentityResult(errors);
             }

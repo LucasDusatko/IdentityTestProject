@@ -8,6 +8,8 @@ using IdentityTestProject.Models;
 using Microsoft.AspNet.Identity;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace IdentityTestProject.Controllers
 {
@@ -32,8 +34,8 @@ namespace IdentityTestProject.Controllers
             {
                 AppUser user = new AppUser { UserName = model.Name, Email = model.Email };
                 IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-                
-            if (result.Succeeded)
+
+                if (result.Succeeded)
                 {
                     return RedirectToAction("Index");
                 }
@@ -47,9 +49,9 @@ namespace IdentityTestProject.Controllers
 
         private void AddErrorsFromResult(IdentityResult result)
         {
-           foreach (string error in result.Errors)
+            foreach (string error in result.Errors)
             {
-                ModelState.AddModelError("",error);
+                ModelState.AddModelError("", error);
             }
         }
 
@@ -131,7 +133,7 @@ namespace IdentityTestProject.Controllers
                 {
                     ModelState.AddModelError("", "User Not Found");
                 }
-                
+
             }
             return View(user);
         }
@@ -159,7 +161,7 @@ namespace IdentityTestProject.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create ([Required]string name)
+        public async Task<ActionResult> Create([Required]string name)
         {
             if (ModelState.IsValid)
             {
@@ -184,7 +186,7 @@ namespace IdentityTestProject.Controllers
             if (role != null)
             {
                 IdentityResult result = await RoleManager.DeleteAsync(role);
-                if(result.Succeeded)
+                if (result.Succeeded)
                 {
                     return RedirectToAction("Index");
                 }
@@ -200,6 +202,44 @@ namespace IdentityTestProject.Controllers
             }
         }
 
+        public async Task<ActionResult> Edit(string id)
+        {
+            AppRole role = await RoleManager.FindByIdAsync(id);
+            string[] memeberIDs = role.Users.Select(x => x.UserId).ToArray();
+            IEnumerable<AppUser> members = UserManager.Users.Where(x => memeberIDs.Any(y => y == x.Id));
+            IEnumerable<AppUser> nonMembers = UserManager.Users.Except(members);
+            return View(new RoleEditModel { Role = role, Members = members, NonMembers = nonMembers });
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Edit(RoleModificationModel model)
+        {
+            IdentityResult result;
+            if (ModelState.IsValid)
+            {
+                foreach (string userId in model.IdsToAdd ?? new string[] { })
+                {
+                    result = await UserManager.AddToRoleAsync(userId, model.RoleName);
+                    if (!result.Succeeded)
+                    {
+                        return View("Error", result.Errors);
+                    }
+                }
+                foreach (string userId in model.IdsToDelete ?? new string[] { })
+                {
+                    result = await UserManager.RemoveFromRoleAsync(userId, model.RoleName);
+                    if (!result.Succeeded)
+                    {
+                        return View("Error", result.Errors);
+                    }
+                }
+                return RedirectToAction("Index");
+            }
+            return View("Error", new string[] { "Role Not Found" });
+        }
+
+
+        // Helper Methods
         private void AddErrorsFromResult(IdentityResult result)
         {
             foreach (string error in result.Errors)
