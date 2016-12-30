@@ -13,6 +13,7 @@ using System.Linq;
 
 namespace IdentityTestProject.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         // GET: List of users
@@ -148,6 +149,7 @@ namespace IdentityTestProject.Controllers
     }
 
     //Role Admin Class start
+    [Authorize(Roles = "Admin")]
     public class RoleAdminController : Controller
     {
         public ActionResult Index()
